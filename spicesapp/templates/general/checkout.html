@@ -1,0 +1,107 @@
+
+{% extends 'general/base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+	<!-- breadcrumb-section -->
+	<div class="breadcrumb-section breadcrumb-bg">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 offset-lg-2 text-center">
+					<div class="breadcrumb-text">
+						<p>"Flawless Selection"</p>
+						<h1>Check Out Product</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end breadcrumb section -->
+    <br>
+    <br>
+    <br>
+    <br>
+	<!-- check out section -->
+	<div class="checkout-section mt-150 mb-150">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8">
+					<div class="checkout-accordion-wrap">
+						<div class="accordion" id="accordionExample">
+							<div class="card single-accordion">
+								<div class="card-header" id="headingOne">
+									<h5 class="mb-0">
+										<button class="btn btn-link" type="button" data-toggle="collapse"
+											data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+											Billing & Shipping Address
+										</button>
+									</h5>
+								</div>
+	
+								<div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+									data-parent="#accordionExample">
+									<div class="card-body">
+										<div class="billing-address-form">
+											<form method="POST">
+												{% csrf_token %}
+												<p><input type="text" value="{{request.user.address}}" name="address" placeholder="Address" required></p>
+												<p><input type="text" value="{{request.user.location}}" name="location" placeholder="Location" ></p>
+												<p><input type="text" value="{{request.user.city}}" name="city" placeholder="City" required></p>
+												<p><input type="text" value="{{request.user.pincode}}" name="pincode" placeholder="Pincode" required></p>
+												<p><input type="text" value="{{request.user.landmark}}" name="landmark" placeholder="Landmark" required></p>
+												<p><textarea name="bill" id="bill" cols="30" rows="10"
+														placeholder="Say Something"></textarea></p>
+												<button type="submit" class="btn btn-primary">Place Order</button>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+	
+				<div class="col-lg-4">
+					<div class="order-details-wrap">
+						<table class="order-details">
+							<thead>
+								<tr>
+									<th>Your order Details</th>
+									<th>Price</th>
+								</tr>
+							</thead>
+							<tbody class="order-details-body">
+								{% for cart_item in cart_items %}
+								<tr>
+									<td>{{ cart_item.product.product_name }} ({{ cart_item.quantity }})</td>
+									<td>${{ cart_item.price }}</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+							<tbody class="checkout-details">
+								<tr>
+									<td>Subtotal</td>
+									<td>${{ subtotal }}</td>
+								</tr>
+								<tr>
+									<td>Shipping</td>
+									<td>${{ shipping_charge }}</td>
+								</tr>
+								<tr>
+									<td>Grand Total</td>
+									<td>${{ total }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- end check out section -->
+
+
+{% endblock %}
