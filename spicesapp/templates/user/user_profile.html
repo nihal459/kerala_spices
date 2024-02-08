@@ -43,10 +43,10 @@
 								<label for="email">Email:</label>
 								<input type="email" class="form-control" id="email" value="{{ request.user.email }}" readonly>
 							</div>
-							<div class="form-group">
+							{% comment %} <div class="form-group">
 								<label for="location">Location:</label>
 								<input type="url" class="form-control" id="location" name="location" value="{{ request.user.location }}">
-							</div>
+							</div> {% endcomment %}
 							<div class="form-group">
 								<label for="address">Address:</label>
 								<textarea class="form-control" id="address" name="address">{{ request.user.address }}</textarea>

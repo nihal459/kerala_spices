@@ -28,7 +28,7 @@
                     <th>Address</th>
                     <th>City</th>
                     <th>Pincode</th>
-                    <th>Location</th>
+                    {% comment %} <th>Location</th> {% endcomment %}
                     <th>Status</th>
                     <th>View Products</th>
 
@@ -43,7 +43,7 @@
                     <td>{{ ordered_product.address }}</td>
                     <td>{{ ordered_product.city }}</td>
                     <td>{{ ordered_product.pincode }}</td>
-                    <td>{{ ordered_product.location }}</td>
+                    {% comment %} <td>{{ ordered_product.location }}</td> {% endcomment %}
                     <td>{{ ordered_product.status }}</td>
                     <td><a href="{% url 'view_products' ordered_product.pk %}">View Products</td>
                 </tr>

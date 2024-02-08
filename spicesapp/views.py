@@ -162,11 +162,11 @@ def checkout(request):
         cart_items = AddToCart.objects.filter(user=request.user)
 
         subtotal = cart_items.aggregate(total_price=Sum('price'))['total_price'] or 0
-        shipping_charge = 45
+        shipping_charge = 0
         total = subtotal + shipping_charge
 
         address = request.POST.get('address')
-        location = request.POST.get('location')
+        # location = request.POST.get('location')
         city = request.POST.get('city')
         pincode = request.POST.get('pincode')
         landmark = request.POST.get('landmark')
@@ -175,7 +175,7 @@ def checkout(request):
             user=request.user,
             total_price=total,
             address=address,
-            location=location,
+            # location=location,
             city=city,
             pincode=pincode,
             landmark=landmark,
@@ -231,19 +231,18 @@ def view_products(request, pk):
 
 
 def spices_login(request):
-     if request.method == "POST":
-          username = request.POST['username']
-          password = request.POST['pass']
-          user = authenticate(request, username=username, password=password)
-          if user is not None:
-               login(request,user)
-               return redirect("spices_home")
-          else:
-               messages.info(request,'Username or password incorrect')
-               return redirect('spices_login')
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('pass')
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_superuser:  # Check if user is not None and is a superuser
+            login(request, user)
+            return redirect("spices_home")
+        else:
+            messages.error(request, 'Username or password incorrect or you are not a superuser')
+            return redirect('spices_login')
 
-
-     return render(request,'spices_admin/spices_login.html')
+    return render(request, 'spices_admin/spices_login.html')
 
 
 def spices_home(request):
@@ -417,6 +416,45 @@ def SignOut2(request):
 
 
 
+# def user_reg(request):
+#     if request.method == "POST":
+#         name = request.POST.get("name")
+#         email = request.POST.get("email")
+#         passw = request.POST.get("pass")
+#         if User.objects.filter(email=email).exists():
+#             messages.error(request, 'Email already exists')
+#             return render(request, 'user/user_reg.html')
+#         else:
+#             user = User.objects.create_user(
+#                 name = name,
+#                 username = email,
+#                 email = email,
+#                 password=passw,
+#                 is_customer=True,
+#             )
+#             # Add a success message
+#             messages.success(request, 'Registration successful. You can now log in.')
+#             return redirect('user_reg')
+#     else:
+#         return render(request, 'user/user_reg.html')
+
+
+# def user_log(request):
+#     if request.method == 'POST':
+#         uname = request.POST.get('email')
+#         passw = request.POST.get('pass')
+
+#         user = User.objects.filter(username=uname).first()
+        
+#         if user is not None and user.check_password(passw) and user.is_customer:
+#             login(request, user)
+#             return redirect('index')
+#         else:
+#             messages.error(request, 'Invalid login credentials.')
+
+#     return render(request, 'user/user_log.html')
+
+
 def user_reg(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -427,15 +465,17 @@ def user_reg(request):
             return render(request, 'user/user_reg.html')
         else:
             user = User.objects.create_user(
+                username=email,
+                email=email,
                 name = name,
-                username = email,
-                email = email,
                 password=passw,
                 is_customer=True,
             )
+            # Automatically log in the user after registration
+            login(request, user)
             # Add a success message
-            messages.success(request, 'Registration successful. You can now log in.')
-            return redirect('user_reg')
+            messages.success(request, 'Registration successful. You are now logged in.')
+            return redirect('index')
     else:
         return render(request, 'user/user_reg.html')
 
@@ -456,13 +496,16 @@ def user_log(request):
     return render(request, 'user/user_log.html')
 
 
+
+
+
 def user_profile(request):
     user = request.user
     if request.method == "POST":
         # Collect form data
         name = request.POST.get('name')
         mobile_number = request.POST.get('mobile_number')
-        location = request.POST.get('location')
+        # location = request.POST.get('location')
         address = request.POST.get('address')
         city = request.POST.get('city')
         landmark = request.POST.get('landmark')
@@ -471,7 +514,7 @@ def user_profile(request):
         # Update user profile
         user.name = name
         user.mobile_number = mobile_number
-        user.location = location
+        # user.location = location
         user.address = address
         user.city = city
         user.landmark = landmark

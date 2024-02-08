@@ -47,7 +47,7 @@
 											<form method="POST">
 												{% csrf_token %}
 												<p><input type="text" value="{{request.user.address}}" name="address" placeholder="Address" required></p>
-												<p><input type="text" value="{{request.user.location}}" name="location" placeholder="Location" ></p>
+												{% comment %} <p><input type="text" value="{{request.user.location}}" name="location" placeholder="Location" ></p> {% endcomment %}
 												<p><input type="text" value="{{request.user.city}}" name="city" placeholder="City" required></p>
 												<p><input type="text" value="{{request.user.pincode}}" name="pincode" placeholder="Pincode" required></p>
 												<p><input type="text" value="{{request.user.landmark}}" name="landmark" placeholder="Landmark" required></p>
