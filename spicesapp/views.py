@@ -393,6 +393,25 @@ def view_products(request, pk):
     context = {'products': products}
     return render(request, 'user/view_products.html', context)
 
+# def delete_order2(request, pk):
+#     product = get_object_or_404(Checkout, pk=pk)
+#     product.delete()
+#     return redirect('user_orders')
+
+def delete_order2(request, pk):
+    order = get_object_or_404(Checkout, pk=pk)
+    if order.status != "Delivered":
+        # Only restore quantities if the order status is not "Delivered"
+        with transaction.atomic():
+            # Start a database transaction to ensure atomicity
+            ordered_products = order.ordered_products.all()
+            for ordered_product in ordered_products:
+                product = ordered_product.product
+                product.quantity += ordered_product.quantity  # Restore the quantity
+                product.save()  # Save the updated product
+
+    order.delete()  # Delete the order
+    return redirect('user_orders')
 
 #####################################################################################
 #Admin
@@ -564,10 +583,30 @@ def update_order(request, pk):
         return render(request, 'spices_admin/update_order.html', context)
 
 
+# def delete_order(request, pk):
+#     product = get_object_or_404(Checkout, pk=pk)
+#     product.delete()
+#     return redirect('spices_orders')
+
+
+from django.db import transaction
+
 def delete_order(request, pk):
-    product = get_object_or_404(Checkout, pk=pk)
-    product.delete()
+    order = get_object_or_404(Checkout, pk=pk)
+    if order.status != "Delivered":
+        # Only restore quantities if the order status is not "Delivered"
+        with transaction.atomic():
+            # Start a database transaction to ensure atomicity
+            ordered_products = order.ordered_products.all()
+            for ordered_product in ordered_products:
+                product = ordered_product.product
+                product.quantity += ordered_product.quantity  # Restore the quantity
+                product.save()  # Save the updated product
+
+    order.delete()  # Delete the order
     return redirect('spices_orders')
+
+
 
 def customer_details(request):
     customers = User.objects.filter(is_customer=True)

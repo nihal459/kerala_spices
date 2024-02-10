@@ -31,6 +31,7 @@
                     {% comment %} <th>Location</th> {% endcomment %}
                     <th>Status</th>
                     <th>View Products</th>
+                    <th></th>
 
                 </tr>
             </thead>
@@ -46,6 +47,8 @@
                     {% comment %} <td>{{ ordered_product.location }}</td> {% endcomment %}
                     <td>{{ ordered_product.status }}</td>
                     <td><a href="{% url 'view_products' ordered_product.pk %}">View Products</td>
+                    <td><a href="{% url 'delete_order2' ordered_product.pk %}"><i class="far fa-trash-alt"></i></td>
+
                 </tr>
                 {% endfor %}
             </tbody>
