@@ -53,7 +53,10 @@
 												<p><input type="text" value="{{request.user.landmark}}" name="landmark" placeholder="Landmark" required></p>
 												<p><textarea name="bill" id="bill" cols="30" rows="10"
 														placeholder="Say Something"></textarea></p>
-												<button type="submit" class="btn btn-primary">Place Order</button>
+												{% if total > 0 %}
+												<button type="submit" class="btn btn-primary p-3"
+													style="background-color:orange; border:none;">Place Order</button>
+												{% endif %}
 											</form>
 										</div>
 									</div>
@@ -68,14 +71,16 @@
 						<table class="order-details">
 							<thead>
 								<tr>
-									<th>Your order Details</th>
-									<th>Price</th>
+									<th>Your Product</th>
+									<th>Quantity</th>
+									<th>Total Price</th>
 								</tr>
 							</thead>
 							<tbody class="order-details-body">
 								{% for cart_item in cart_items %}
 								<tr>
-									<td>{{ cart_item.product.product_name }} ({{ cart_item.quantity }})</td>
+									<td>{{ cart_item.product.product_name }}</td>
+									<td>{{ cart_item.quantity }}</td>
 									<td>${{ cart_item.price }}</td>
 								</tr>
 								{% endfor %}
@@ -83,15 +88,18 @@
 							<tbody class="checkout-details">
 								<tr>
 									<td>Subtotal</td>
-									<td>${{ subtotal }}</td>
+									<td></td>
+									<td>${{ subtotal|floatformat:2 }}</td>
 								</tr>
 								<tr>
 									<td>Shipping</td>
-									<td>${{ shipping_charge }}</td>
+									<td></td>
+									<td>${{ shipping_charge|floatformat:2 }}</td>
 								</tr>
 								<tr>
-									<td>Grand Total</td>
-									<td>${{ total }}</td>
+									<td><b>Grand Total</b></td>
+									<td></td>
+									<td><b>${{ total|floatformat:2 }}</b></td>
 								</tr>
 							</tbody>
 						</table>

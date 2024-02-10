@@ -22,81 +22,7 @@
 	<!-- products -->
 	<div class="product-section mt-100 mb-100">
 		<div class="container">
-			{% comment %} <div class="row">
-				<div class="col-md-12">
-					<div class="product-filters">
-						<ul>
-							<li class="active" data-filter="*">All</li>
-							<li data-filter=".strawberry">Flours</li>
-							<li data-filter=".strawberry">Oils</li>
-							<li data-filter=".berry">Pickles</li>
-							<li data-filter=".lemon">Pulses</li>
-							<li data-filter=".apple">Spices</li>
-							<li data-filter=".apple">Jams & Juices</li>
-						</ul>
-					</div>
-				</div>
-			</div> {% endcomment %}
-            {% comment %} <div class="row product-lists">
-                {% for product in products %}
-                <div class="col-lg-3 col-md-4 col-sm-4 col-6 text-center">
-                    <div class="single-product-item">
-                        <div class="product-image">
-                            <a href="{% url 'single_product' product.pk %}">
-                                <img src="{{ product.imageURL }}" alt="">
-                            </a>
-                        </div>
-                        <h3>{{ product.product_name }}</h3>
-                        <p class="product-price"><span>Per Kg</span> {{ product.price }}$</p>
-						{% if request.user.is_authenticated %}
-							<a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
-						{% else %}
-							<a href="#" class="cart-btn" onclick="showLoginMessage(event)"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
-							<p id="loginMessage" style="display: none;">Please login to add to cart</p>
-						{% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-			<script>
-				function showLoginMessage(event) {
-					document.getElementById("loginMessage").style.display = "block";
-					event.preventDefault(); // Prevents the default behavior of the anchor tag
-				}
-			</script> {% endcomment %}
-			
-            
-
-			{% comment %} <div class="row product-lists">
-				{% for product in products %}
-				<div class="col-lg-3 col-md-4 col-sm-4 col-6 text-center">
-					<div class="single-product-item">
-						<div class="product-image">
-							<a href="{% url 'single_product' product.pk %}">
-								<img src="{{ product.imageURL }}" alt="">
-							</a>
-						</div>
-						<h3>{{ product.product_name }}</h3>
-						<p class="product-price"><span>Per Kg</span> {{ product.price }}$</p>
-						{% if request.user.is_authenticated %}
-							<a href="{% url 'add_to_cart' product.pk %}" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
-						{% else %}
-							<a href="#" class="cart-btn" onclick="showLoginMessage(event, {{ product.pk }})"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
-							<p id="loginMessage_{{ product.pk }}" style="display: none;">Please login to add to cart</p>
-						{% endif %}
-					</div>
-				</div>
-				{% endfor %}
-			</div>
-			
-			<script>
-				function showLoginMessage(event, productId) {
-					var messageElement = document.getElementById("loginMessage_" + productId);
-					messageElement.style.display = "block";
-					event.preventDefault(); // Prevents the default behavior of the anchor tag
-				}
-			</script> {% endcomment %}
+		
 			
 			<div class="row product-lists">
 				{% for product in products %}
@@ -109,11 +35,15 @@
 						</div>
 						<h3>{{ product.product_name }}</h3>
 						<p class="product-price"><span>Per Kg</span> {{ product.price }}$</p>
-						{% if request.user.is_authenticated %}
-							<a href="{% url 'add_to_cart' product.pk %}" class="cart-btn" onclick="showSuccessMessage('{{ product.product_name }}')"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+						{% if product.quantity > 0 %}
+							{% if request.user.is_authenticated %}
+								<a href="{% url 'add_to_cart' product.pk %}" class="cart-btn" onclick="addToCart(event, {{ product.pk }})"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+							{% else %}
+								<a href="#" class="cart-btn" onclick="showLoginMessage(event, {{ product.pk }})"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+								<p id="loginMessage_{{ product.pk }}" style="display: none;">Please login to add to cart</p>
+							{% endif %}
 						{% else %}
-							<a href="#" class="cart-btn" onclick="showLoginMessage(event, {{ product.pk }})"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
-							<p id="loginMessage_{{ product.pk }}" style="display: none;">Please login to add to cart</p>
+							<p class="out-of-stock">Out of Stock</p>
 						{% endif %}
 						<p id="successMessage" style="display: none; color: green;"></p>
 					</div>
@@ -128,27 +58,24 @@
 					event.preventDefault(); // Prevents the default behavior of the anchor tag
 				}
 			
-				function showSuccessMessage(productName) {
+				function addToCart(event, productId) {
+					// Check if the product is out of stock
+					var quantity = {{ product.quantity }};
+					if (quantity <= 0) {
+						alert("This product is out of stock.");
+						event.preventDefault(); // Prevents the default behavior of the anchor tag
+						return;
+					}
+			
+					// If not out of stock, proceed with adding to cart
 					var successMessageElement = document.getElementById("successMessage");
-					successMessageElement.innerHTML = productName + " added to cart";
+					successMessageElement.innerHTML = "Product added to cart";
 					successMessageElement.style.display = "block";
 				}
 			</script>
 			
+			
 
-			{% comment %} <div class="row">
-				<div class="col-lg-12 text-center">
-					<div class="pagination-wrap">
-						<ul>
-							<li><a href="#">Prev</a></li>
-							<li><a href="#">1</a></li>
-							<li><a class="active" href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">Next</a></li>
-						</ul>
-					</div>
-				</div>
-			</div> {% endcomment %}
 		</div>
 	</div>
 	<!-- end products -->

@@ -46,32 +46,32 @@
 	<br>
 	<br>
 
-	<!-- single product -->
 	<div class="single-product mt-150 mb-150">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-5">
 					<div class="single-product-img">
-						<img src="{{product.imageURL}}" alt="">
+						<img src="{{ product.imageURL }}" alt="">
 					</div>
 				</div>
 				<div class="col-md-7">
 					<div class="single-product-content">
-						<h3>{{product.product_name}}</h3>
-						<p class="single-product-pricing"><span>Per Kg</span> ${{product.price}}</p>
-						<p>{{product.description}}</p>
+						<h3>{{ product.product_name }}</h3>
+						<p class="single-product-pricing"><span>Per Kg</span> ${{ product.price }}</p>
+						<p>{{ product.description }}</p>
+						{% if product.quantity > 0 %}
 						<div class="single-product-form">
 							<form action="{% url 'add_to_cart2' %}" method="POST">
 								{% csrf_token %}
 								<input type="number" value="1" min="1" name="quantity">
-								<input type="hidden" value="{{product.pk}}" name="pid">
+								<input type="hidden" value="{{ product.pk }}" name="pid">
 								<br>
 								<input type="submit" value="Add To Cart">
 							</form>
-							<br>
-							{% comment %} <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a> {% endcomment %}
-							<p><strong>Category: </strong>{{product.category.category_name}}</p>
 						</div>
+						{% else %}
+						<p class="out-of-stock">Out of Stock</p>
+						{% endif %}
 						<h4>Share:</h4>
 						<ul class="product-share">
 							<li><a href=""><i class="fab fa-facebook-f"></i></a></li>
@@ -84,6 +84,7 @@
 			</div>
 		</div>
 	</div>
+
 
 
 

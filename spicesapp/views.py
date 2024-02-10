@@ -38,29 +38,60 @@ def single_product(request,pk):
 
 
 
+# def add_to_cart(request, pk):
+#     user = request.user
+
+#     if user.is_authenticated:
+#         product = get_object_or_404(Product, pk=pk)
+#         quantity = 1  # You can customize this based on your requirements
+#         price = product.price
+
+#         # Check if the product is already in the user's cart
+#         existing_cart_item = AddToCart.objects.filter(user=user, product=product).first()
+
+#         if existing_cart_item:
+#             # If the product is already in the cart, update the quantity
+#             existing_cart_item.quantity += quantity
+#             existing_cart_item.save()
+#         else:
+#             # If the product is not in the cart, create a new cart item
+#             cart_item = AddToCart(user=user, product=product, quantity=quantity, price=price)
+#             cart_item.save()
+
+#         messages.success(request, f"{product.product_name} added to your cart.")
+#         return redirect('shop')  # Redirect to the cart page or any other page you want after adding to cart
+    
+
+
 def add_to_cart(request, pk):
     user = request.user
 
     if user.is_authenticated:
         product = get_object_or_404(Product, pk=pk)
-        quantity = 1  # You can customize this based on your requirements
-        price = product.price
 
-        # Check if the product is already in the user's cart
-        existing_cart_item = AddToCart.objects.filter(user=user, product=product).first()
+        # Check if the product is in stock
+        if product.quantity > 0:
+            quantity = 1  # You can customize this based on your requirements
+            price = product.price
 
-        if existing_cart_item:
-            # If the product is already in the cart, update the quantity
-            existing_cart_item.quantity += quantity
-            existing_cart_item.save()
+            # Check if the product is already in the user's cart
+            existing_cart_item = AddToCart.objects.filter(user=user, product=product).first()
+
+            if existing_cart_item:
+                # If the product is already in the cart, update the quantity
+                existing_cart_item.quantity += quantity
+                existing_cart_item.save()
+            else:
+                # If the product is not in the cart, create a new cart item
+                cart_item = AddToCart(user=user, product=product, quantity=quantity, price=price)
+                cart_item.save()
+
+            messages.success(request, f"{product.product_name} added to your cart.")
         else:
-            # If the product is not in the cart, create a new cart item
-            cart_item = AddToCart(user=user, product=product, quantity=quantity, price=price)
-            cart_item.save()
+            messages.error(request, f"{product.product_name} is out of stock.")
 
-        messages.success(request, f"{product.product_name} added to your cart.")
         return redirect('shop')  # Redirect to the cart page or any other page you want after adding to cart
-    
+ 
 
 def add_to_cart2(request):
     user = request.user
@@ -93,9 +124,75 @@ def add_to_cart2(request):
 
 
 
+# def cart(request):
+#     userid = request.user.pk
+#     cart_items = AddToCart.objects.filter(user=userid)
+
+#     for cart_item in cart_items:
+#         # Update the single_total for display in the template
+#         cart_item.single_total = cart_item.product.price * cart_item.quantity
+
+#         # Update the price field in the AddToCart model based on the current product price and quantity
+#         cart_item.price = cart_item.product.price * cart_item.quantity
+#         cart_item.save()
+
+#     # Calculate total amounts for each product and subtotal
+#     subtotal = cart_items.aggregate(total_price=Sum('price'))['total_price'] or 0
+#     shipping_charge = 0
+#     total = subtotal + shipping_charge
+
+#     context = {
+#         'cart_items': cart_items,
+#         'subtotal': subtotal,
+#         'shipping_charge': shipping_charge,
+#         'total': total,
+#     }
+
+#     return render(request, 'general/cart.html', context)
+
+
+from django.db.models import F
+
+# def cart(request):
+#     userid = request.user.pk
+#     cart_items = AddToCart.objects.filter(user=userid)
+
+#     for cart_item in cart_items:
+#         # Update the single_total for display in the template
+#         cart_item.single_total = cart_item.product.price * cart_item.quantity
+
+#         # Update the price field in the AddToCart model based on the current product price and quantity
+#         cart_item.price = cart_item.product.price * cart_item.quantity
+#         cart_item.save()
+
+#         # Get the available quantity of the product
+#         available_quantity = cart_item.product.quantity
+
+#         # Update the cart item to include the available quantity
+#         cart_item.product.available_quantity = available_quantity
+
+#     # Calculate total amounts for each product and subtotal
+#     subtotal = cart_items.aggregate(total_price=Sum('price'))['total_price'] or 0
+#     shipping_charge = 0
+#     total = subtotal + shipping_charge
+
+#     context = {
+#         'cart_items': cart_items,
+#         'subtotal': subtotal,
+#         'shipping_charge': shipping_charge,
+#         'total': total,
+#     }
+
+#     return render(request, 'general/cart.html', context)
+
+
+from django.db.models import F, ExpressionWrapper, fields
+
 def cart(request):
     userid = request.user.pk
     cart_items = AddToCart.objects.filter(user=userid)
+
+    allow_checkout = True  # Initialize allow_checkout as True by default
 
     for cart_item in cart_items:
         # Update the single_total for display in the template
@@ -104,6 +201,16 @@ def cart(request):
         # Update the price field in the AddToCart model based on the current product price and quantity
         cart_item.price = cart_item.product.price * cart_item.quantity
         cart_item.save()
+
+        # Get the available quantity of the product
+        available_quantity = cart_item.product.quantity
+
+        # Update the cart item to include the available quantity
+        cart_item.product.available_quantity = available_quantity
+
+        # Check if the quantity in the cart exceeds the available quantity for any product
+        if cart_item.quantity > available_quantity:
+            allow_checkout = False  # Set allow_checkout to False if any product quantity exceeds available quantity
 
     # Calculate total amounts for each product and subtotal
     subtotal = cart_items.aggregate(total_price=Sum('price'))['total_price'] or 0
@@ -115,9 +222,12 @@ def cart(request):
         'subtotal': subtotal,
         'shipping_charge': shipping_charge,
         'total': total,
+        'allow_checkout': allow_checkout,  # Pass allow_checkout to the template
     }
 
     return render(request, 'general/cart.html', context)
+
+
 
 
 from django.http import JsonResponse
@@ -156,6 +266,62 @@ def order_placed(request):
     return render(request, 'general/order_placed.html')
 
 
+# @login_required
+# def checkout(request):
+#     if request.method == 'POST':
+#         cart_items = AddToCart.objects.filter(user=request.user)
+
+#         subtotal = cart_items.aggregate(total_price=Sum('price'))['total_price'] or 0
+#         shipping_charge = 0
+#         total = subtotal + shipping_charge
+
+#         address = request.POST.get('address')
+#         # location = request.POST.get('location')
+#         city = request.POST.get('city')
+#         pincode = request.POST.get('pincode')
+#         landmark = request.POST.get('landmark')
+
+#         checkout_instance = Checkout.objects.create(
+#             user=request.user,
+#             total_price=total,
+#             address=address,
+#             # location=location,
+#             city=city,
+#             pincode=pincode,
+#             landmark=landmark,
+#             status='Pending'
+#         )
+
+#         for cart_item in cart_items:
+#             OrderedProduct.objects.create(
+#                 checkout=checkout_instance,
+#                 product=cart_item.product,
+#                 quantity=cart_item.quantity,
+#                 price=cart_item.price
+#             )
+
+#         checkout_instance.save()
+#         cart_items.delete()
+
+#         return redirect('order_placed')
+    
+#     else:
+#         cart_items = AddToCart.objects.filter(user=request.user)
+
+#         subtotal = cart_items.aggregate(total_price=Sum('price'))['total_price'] or 0
+#         shipping_charge = 0 
+#         total = subtotal + shipping_charge
+
+#         context = {
+#             'cart_items': cart_items,
+#             'subtotal': subtotal,
+#             'shipping_charge': shipping_charge,
+#             'total': total,
+#         }
+
+#         return render(request, 'general/checkout.html', context)
+from django.db.models import F
+
 @login_required
 def checkout(request):
     if request.method == 'POST':
@@ -166,31 +332,34 @@ def checkout(request):
         total = subtotal + shipping_charge
 
         address = request.POST.get('address')
-        # location = request.POST.get('location')
         city = request.POST.get('city')
         pincode = request.POST.get('pincode')
         landmark = request.POST.get('landmark')
 
+        # Create a checkout instance
         checkout_instance = Checkout.objects.create(
             user=request.user,
             total_price=total,
             address=address,
-            # location=location,
             city=city,
             pincode=pincode,
             landmark=landmark,
             status='Pending'
         )
 
+        # Create OrderedProduct instances and decrement the quantity in the Product table
         for cart_item in cart_items:
+            # Create an OrderedProduct instance
             OrderedProduct.objects.create(
                 checkout=checkout_instance,
                 product=cart_item.product,
                 quantity=cart_item.quantity,
                 price=cart_item.price
             )
+            # Decrement the quantity in the Product table by the quantity in the cart
+            Product.objects.filter(pk=cart_item.product.pk).update(quantity=F('quantity') - cart_item.quantity)
 
-        checkout_instance.save()
+        # Delete cart items after checkout
         cart_items.delete()
 
         return redirect('order_placed')
