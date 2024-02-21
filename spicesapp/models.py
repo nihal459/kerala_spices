@@ -104,3 +104,15 @@ class OrderedProduct(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.product_name} - ${self.price}"
+
+
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100, null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    email = models.EmailField(max_length=254, null=True, blank=True)
+    subject = models.CharField(max_length=200, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name

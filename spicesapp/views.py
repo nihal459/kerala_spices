@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def index(request):
-    products = Product.objects.all()
+    products = Category.objects.all()
     context = {'products':products}
     return render(request, 'general/index.html', context)
 
@@ -21,7 +21,30 @@ def about_us(request):
 
 
 def contact_us(request):
-    return render(request, 'general/contact_us.html')
+    success_message = None
+    failure_message = None
+    
+    if request.method == "POST":
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+
+        try:
+            Contact.objects.create(
+                name=name,
+                email=email,
+                phone=phone,
+                subject=subject,
+                message=message,
+            )
+            success_message = "Your message has been successfully sent!"
+        except Exception as e:
+            print(e)
+            failure_message = "Sorry, an error occurred while sending your message. Please try again later."
+
+    return render(request, 'general/contact_us.html', {'success_message': success_message, 'failure_message': failure_message})
 
 
 def shop(request):
@@ -413,6 +436,16 @@ def delete_order2(request, pk):
     order.delete()  # Delete the order
     return redirect('user_orders')
 
+
+def category_products(request,pk):
+    products = Product.objects.filter(category=pk)
+    context = {'products':products}
+    return render(request, 'general/category_products.html', context)
+
+def privacy_policy(request):
+
+    return render(request, 'general/privacy_policy.html')
+
 #####################################################################################
 #Admin
 
@@ -613,7 +646,10 @@ def customer_details(request):
     context = {'customers':customers}
     return render(request, 'spices_admin/customer_details.html', context)
 
-
+def contact_forms(request):
+    contact = Contact.objects.all()
+    context = {'contact':contact}
+    return render(request, 'spices_admin/contact_forms.html', context)
 
 def SignOut2(request):
      logout(request)
