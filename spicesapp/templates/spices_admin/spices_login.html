@@ -44,7 +44,13 @@
                     <a class="text-success fw-bold ms-2" href="{% url 'index' %}">Back To Home</a>
 
                   </div>
-
+                  {% if messages %}
+                      <ul>
+                          {% for message in messages %}
+                              <li style="color:red;">{{ message }}</li>
+                          {% endfor %}
+                      </ul>
+                  {% endif %}
                 </form>
               </div>
             </div>

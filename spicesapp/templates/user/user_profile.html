@@ -37,8 +37,10 @@
 							</div>
 							<div class="form-group">
 								<label for="mobile_number">Mobile Number:</label>
-								<input type="text" class="form-control" id="mobile_number" name="mobile_number" value="{{ request.user.mobile_number }}">
+								<input type="tel" pattern="[0-9]{10}" maxlength="10" class="form-control" id="mobile_number" name="mobile_number" value="{{ request.user.mobile_number }}">
+								<small class="form-text text-muted">Please enter a 10-digit mobile number.</small>
 							</div>
+							
 							<div class="form-group">
 								<label for="email">Email:</label>
 								<input type="email" class="form-control" id="email" value="{{ request.user.email }}" readonly>
@@ -61,8 +63,10 @@
 							</div>
 							<div class="form-group">
 								<label for="pincode">Pincode:</label>
-								<input type="text" class="form-control" id="pincode" name="pincode" value="{{ request.user.pincode }}">
+								<input type="text" pattern="[0-9]*" inputmode="numeric" class="form-control" id="pincode" name="pincode" value="{{ request.user.pincode }}">
+								<small class="form-text text-muted">Please enter numbers only.</small>
 							</div>
+							
 							<button type="submit" class="btn btn-primary">Update</button>
 						</form>
                     </div>
